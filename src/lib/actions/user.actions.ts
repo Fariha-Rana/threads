@@ -3,6 +3,8 @@
 import { connectToDB } from "../mongoose";
 import UserMongo from "../models/user.models";
 import { revalidatePath } from "next/cache";
+import Thread from "../models/thread.models";
+import { FilterQuery, SortOrder } from "mongoose";
 
 interface Params {
   userId: string;
@@ -27,7 +29,7 @@ export async function updateUser({
     await UserMongo.findOneAndUpdate(
       { id: userId },
       {
-        userName: userName.toLowerCase(),
+        username: userName.toLowerCase(),
         name,
         bio,
         image,
@@ -54,6 +56,93 @@ export async function fetchUserFromDatabase(userId: string) {
     //   path : "communities",
     //   model : Community
     // });
+  } catch (error: any) {
+    throw new Error(`failed to fetch user:  ${error.message}`);
+  }
+}
+
+
+// to-do : populate community
+export async function fetchUserPosts(userId: string) {
+  connectToDB();
+  try {
+    return await UserMongo
+    .findOne({ id: userId })
+    .populate({
+      path : "threads",
+      model : Thread,
+      populate : {
+        path : "children",
+        model : Thread,
+        populate : {
+          path : "author",
+          model : UserMongo,
+          select : "name image id "
+        }
+      }
+    });
+  } catch (error: any) {
+    throw new Error(`failed to fetch user threads:  ${error.message}`);
+  }
+}
+
+
+
+export async function fetchUsers({
+  userId,
+  searchString = "",
+  pageNumber = 1,
+  pageSize = 20,
+  sortBy = "desc"
+} : {
+  userId : string,
+  searchString? : string,
+  pageNumber? : number,
+  pageSize? : number,
+  sortBy? : SortOrder
+}) {
+  connectToDB();
+  try {
+    const skipAmount = (pageNumber - 1) * pageSize;
+    const regEx = new RegExp(searchString, "i")
+
+    const query : FilterQuery<typeof UserMongo>= {
+      id : {
+        $ne : userId
+      }
+    }
+      if(searchString.trim() !== ""){
+        query.$or = [
+          {
+            username : {
+              $regex : regEx
+            }
+          },
+          {
+            name : {
+              $regex : regEx
+            }
+          }
+        ]
+      }
+
+
+      const sortOptions = {
+        createdAt : sortBy
+      };
+
+      const userQuery =  UserMongo.find(query)
+      .sort(sortOptions)
+      .skip(skipAmount)
+      .limit(pageSize)
+
+      const totalUserCount = await UserMongo.countDocuments(query)
+
+      const users = await userQuery.exec()
+
+      const isNext = totalUserCount  > skipAmount + users.length
+
+      return { users , isNext}
   } catch (error: any) {
     throw new Error(`failed to fetch user:  ${error.message}`);
   }

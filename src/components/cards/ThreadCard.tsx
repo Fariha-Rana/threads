@@ -24,6 +24,7 @@ interface Props {
     }[];
     isComment?: boolean
 }
+
 function ThreadCard({
     id,
     currentUserId,
@@ -35,12 +36,13 @@ function ThreadCard({
     comments,
     isComment
 }: Props) {
+
     return (
-        <article className="flex w-full flex-col rounded-xl bg-dark-2 mt-4 p-7">
+        <article className={`flex w-full flex-col rounded-xl mt-4 ${isComment ? "px-0 sm:px-7" : "bg-dark-2 p-7"}`}>
             <div className="flex items-start justify-between">
                 <div className="flex w-full flex-1 gap-4">
                     <div className="flex flex-col items-center">
-                        <Link className="relative h-11 w-11 " href={`/profile/${author.id}`}>
+                        <Link className="relative h-14 w-14 " href={`/profile/${author.id}`}>
                             <Image
                                 src={author.image}
                                 alt={"profile image"}
@@ -96,17 +98,15 @@ function ThreadCard({
                             </div>
                             {
                                 isComment && comments.length > 0 && (
-                                    <Link href={`/threads/${id}`} title="replies">
+                                    <Link href={`/thread/${id}`} title="replies">
                                         <p className="mt-1 text-subtle-medium text-gray-1">{comments.length} replies</p>
                                     </Link>
                                 )
                             }
                         </div>
-
                     </div>
                 </div>
             </div>
-
         </article>
     )
 }

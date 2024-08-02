@@ -24,8 +24,10 @@ export async function createThread({
       text,
       author,
       community: null,
+      parentId : ""
     });
 
+    console.log(createThread)
     // update user model
     await UserMongo.findByIdAndUpdate(author, {
       $push: {
@@ -45,9 +47,10 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
 
   try {
     const threadsQuery = Thread.find({
-      parentId: {
-        $in: [null, undefined],
-      },
+      $or: [
+        { parentId: { $exists: false } },
+        { parentId: "" }
+      ]
     })
       .sort({ createdAt: "desc" })
       .skip(skipPageAmount)
@@ -66,9 +69,10 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
       });
 
     const totalThreadsCount = await Thread.countDocuments({
-      parentId: {
-        $in: [null, undefined],
-      },
+      $or: [
+        { parentId: { $exists: false } },
+        { parentId: "" }
+      ]
     });
 
     const threadsData = await threadsQuery.exec();
@@ -77,7 +81,7 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
 
     return { threadsData, isNext };
   } catch (error: any) {
-    throw new Error(`failed to fetch Threads ${error.message}`);
+    throw new Error(`Failed to fetch Threads: ${error.message}`);
   }
 }
 
@@ -115,3 +119,41 @@ export async function fetchThreadsById(id: string) {
     throw new Error(`failed to fetch Threads ${error.message}`);
   }
 }
+
+export async function addCommentToThread(
+  threadId: string,
+  text : string,
+  userId : string,
+  path : string,
+) {
+  connectToDB();
+
+  console.log(threadId)
+  try {
+    const parentThread  = await Thread.findById(threadId);
+
+    if(!parentThread) throw new Error("Thread Not found") ;
+
+    const commentThread = new Thread({
+      text : text,
+      author : userId,
+      parentId : threadId,
+    })
+
+    console.log(commentThread);
+
+    const savedThread = await commentThread.save();
+
+    console.log(savedThread);
+    
+    parentThread.children.push(savedThread._id);
+    
+    await parentThread.save();
+    console.log("Comment added successfully")
+    revalidatePath(path);
+  } catch (error: any) {
+    throw new Error(`Failed to create thread : ${error.message}`);
+  }
+}
+
+
