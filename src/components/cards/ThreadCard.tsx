@@ -105,29 +105,29 @@ function ThreadCard({
                                     </Link>
                                 )
                             }
+                            </div>
 
                             {/* TODO : Deleted Thread */}
                             {/* TODO : Show comment logos */}
-                            {
+                           
+                    </div>
+                </div>
+            </div>
+             {
                                 !isComment && community && (
-                                    <Link href={`/communities/${community.id}`} title="replies" className="mt-2 flex items-center">
-                                        <p className="mt-5 text-subtle-medium text-light-1">{formatDateString(createdAt)} {community.name} Community</p>
-                                        <p className="mt-5 text-subtle-medium text-light-1">{comments.length} replies</p>
-
+                                    <Link href={`/communities/${community.id}`} title="replies" className="mt-5 flex items-center">
+                                        <p className=" text-subtle-medium text-light-1">{formatDateString(createdAt)} - {community.name} Community</p>
+                        
                                         <Image
                                             src={community.image}
                                             alt={community.name}
-                                            width={14}
-                                            height={14}
-                                            className="cursor-pointer rounded-full"
+                                            width={24}
+                                            height={24}
+                                            className=" ml-1 object-cover rounded-full"
                                         />
                                     </Link>
                                 )
                             }
-                        </div>
-                    </div>
-                </div>
-            </div>
         </article>
     )
 }

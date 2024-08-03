@@ -28,13 +28,7 @@ export async function createThread({
       {id : communityId},
       {_id : 1}
     )
-    console.log("-------------------------------------------------------")
-    console.log("-------------------------------------------------------")
-    console.log("-------------------------------------------------------")
-    console.log("-------------------------------------------------------")
-    console.log("-------------------------------------------------------")
-    console.log(communityId)
-return
+
     const createThread = await Thread.create({
       text,
       author,

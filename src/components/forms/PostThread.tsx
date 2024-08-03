@@ -20,8 +20,6 @@ import { useOrganization } from "@clerk/nextjs";
 
 import { useRouter } from "next/navigation";
 import { createThread } from "@/lib/actions/thread.actions";
-import { Organization } from "@clerk/nextjs/server";
-
 
 function PostThread({ userId }: { userId: string }) {
   const router = useRouter()
@@ -43,7 +41,7 @@ function PostThread({ userId }: { userId: string }) {
       path: "/",
     })
 
-    // router.push("/")
+    router.push("/")
   }
   return (
     <Form {...form}>
