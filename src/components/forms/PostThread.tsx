@@ -16,14 +16,16 @@ import {
 } from "@/components/ui/form"
 
 import { ThreadValidation } from "@/lib/validations/thread";
-// import { updateUser } from "@/lib/actions/user.actions";
+import { useOrganization } from "@clerk/nextjs";
 
 import { useRouter } from "next/navigation";
 import { createThread } from "@/lib/actions/thread.actions";
+import { Organization } from "@clerk/nextjs/server";
 
 
 function PostThread({ userId }: { userId: string }) {
   const router = useRouter()
+  const { organization } = useOrganization()
 
   const form = useForm({
     resolver: zodResolver(ThreadValidation),
@@ -33,20 +35,20 @@ function PostThread({ userId }: { userId: string }) {
     }
   })
 
-  const onSubmit = async (values : z.infer<typeof ThreadValidation>) => {
+  const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     await createThread({
-      text : values.thread,
-      author : userId,
-      communityId : null,
-      path : "/",
+      text: values.thread,
+      author: userId,
+      communityId: organization ? organization.id : null,
+      path: "/",
     })
 
-    router.push("/")
+    // router.push("/")
   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mt-10 flex justify-start flex-col gap-8 ">
-      <FormField
+        <FormField
           control={form.control}
           name="thread"
           render={({ field }) => (
@@ -55,12 +57,12 @@ function PostThread({ userId }: { userId: string }) {
                 Content
               </FormLabel>
               <FormControl>
-              <Textarea className="border-dark-4  bg-dark-3 text-light-1 border no-focus"
+                <Textarea className="border-dark-4  bg-dark-3 text-light-1 border no-focus"
                   rows={15}
                   {...field}
                 />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />

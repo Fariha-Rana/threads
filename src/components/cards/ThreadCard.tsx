@@ -1,3 +1,4 @@
+import { formatDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -100,6 +101,26 @@ function ThreadCard({
                                 isComment && comments.length > 0 && (
                                     <Link href={`/thread/${id}`} title="replies">
                                         <p className="mt-1 text-subtle-medium text-gray-1">{comments.length} replies</p>
+                                        <p className="mt-5 text-subtle-medium text-gray-1">{formatDateString(createdAt)}ppppppp</p>
+                                    </Link>
+                                )
+                            }
+
+                            {/* TODO : Deleted Thread */}
+                            {/* TODO : Show comment logos */}
+                            {
+                                !isComment && community && (
+                                    <Link href={`/communities/${community.id}`} title="replies" className="mt-2 flex items-center">
+                                        <p className="mt-5 text-subtle-medium text-light-1">{formatDateString(createdAt)} {community.name} Community</p>
+                                        <p className="mt-5 text-subtle-medium text-light-1">{comments.length} replies</p>
+
+                                        <Image
+                                            src={community.image}
+                                            alt={community.name}
+                                            width={14}
+                                            height={14}
+                                            className="cursor-pointer rounded-full"
+                                        />
                                     </Link>
                                 )
                             }
